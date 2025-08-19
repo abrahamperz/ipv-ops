@@ -1,0 +1,119 @@
+{
+  "groupLeaders": [
+    {
+      "id": 1,
+      "name": "Pablo Guevara",
+      "groupName": "Grupo Fe",
+      "church": "Patria",
+      "members": 12,
+      "attendance": 75,
+      "lastMeeting": "2025-07-15",
+      "membersList": [
+        { "id": 1, "name": "Ana García", "spiritualLevel": "Se bautizó", "attendance": "80%", "lastVisit": "15-Jul-2025" },
+        { "id": 2, "name": "Luis Martínez", "spiritualLevel": "Conoció a Dios", "attendance": "70%", "lastVisit": "14-Jul-2025" },
+        { "id": 3, "name": "María López", "spiritualLevel": "Recién llegado", "attendance": "90%", "lastVisit": "16-Jul-2025" },
+        { "id": 4, "name": "Carlos Ramírez", "spiritualLevel": "Se bautizó", "attendance": "85%", "lastVisit": "13-Jul-2025" },
+        { "id": 5, "name": "Laura Sánchez", "spiritualLevel": "Conoció a Dios", "attendance": "75%", "lastVisit": "14-Jul-2025" },
+        { "id": 6, "name": "Roberto Díaz", "spiritualLevel": "Recién llegado", "attendance": "95%", "lastVisit": "15-Jul-2025" },
+        { "id": 7, "name": "Elena Castro", "spiritualLevel": "Se bautizó", "attendance": "88%", "lastVisit": "12-Jul-2025" },
+        { "id": 8, "name": "Jorge Méndez", "spiritualLevel": "Conoció a Dios", "attendance": "65%", "lastVisit": "11-Jul-2025" },
+        { "id": 9, "name": "Patricia Ruiz", "spiritualLevel": "Se bautizó", "attendance": "78%", "lastVisit": "10-Jul-2025" },
+        { "id": 10, "name": "Andrés Vargas", "spiritualLevel": "Recién llegado", "attendance": "92%", "lastVisit": "16-Jul-2025" },
+        { "id": 11, "name": "Sofía Herrera", "spiritualLevel": "Conoció a Dios", "attendance": "82%", "lastVisit": "14-Jul-2025" },
+        { "id": 12, "name": "Diego Rojas", "spiritualLevel": "Se bautizó", "attendance": "88%", "lastVisit": "15-Jul-2025" }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Carlos Botello",
+      "groupName": "Grupo Amor",
+      "church": "Norte",
+      "members": 8,
+      "attendance": 85,
+      "lastMeeting": "2025-07-14",
+      "membersList": [
+        { "id": 1, "name": "Juan Pérez", "spiritualLevel": "Se bautizó", "attendance": "85%", "lastVisit": "14-Jul-2025" },
+        { "id": 2, "name": "Sofía Gómez", "spiritualLevel": "Conoció a Dios", "attendance": "90%", "lastVisit": "15-Jul-2025" },
+        { "id": 3, "name": "Mateo Díaz", "spiritualLevel": "Recién llegado", "attendance": "95%", "lastVisit": "16-Jul-2025" },
+        { "id": 4, "name": "Valentina Rojas", "spiritualLevel": "Se bautizó", "attendance": "80%", "lastVisit": "13-Jul-2025" },
+        { "id": 5, "name": "Sebastián Vega", "spiritualLevel": "Conoció a Dios", "attendance": "75%", "lastVisit": "12-Jul-2025" },
+        { "id": 6, "name": "Camila Flores", "spiritualLevel": "Recién llegado", "attendance": "88%", "lastVisit": "11-Jul-2025" },
+        { "id": 7, "name": "Daniel Méndez", "spiritualLevel": "Se bautizó", "attendance": "82%", "lastVisit": "10-Jul-2025" },
+        { "id": 8, "name": "Valeria Castro", "spiritualLevel": "Conoció a Dios", "attendance": "90%", "lastVisit": "14-Jul-2025" }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Yessi Michel",
+      "groupName": "Grupo Esperanza",
+      "church": "Patria",
+      "members": 15,
+      "attendance": 65,
+      "lastMeeting": "2025-07-13",
+      "membersList": [
+        { "id": 1, "name": "Lucía Rodríguez", "spiritualLevel": "Se bautizó", "attendance": "80%", "lastVisit": "13-Jul-2025" },
+        { "id": 2, "name": "Alejandro Sánchez", "spiritualLevel": "Conoció a Dios", "attendance": "70%", "lastVisit": "12-Jul-2025" },
+        { "id": 3, "name": "Valeria Hernández", "spiritualLevel": "Recién llegado", "attendance": "90%", "lastVisit": "14-Jul-2025" },
+        { "id": 4, "name": "Fernando Luna", "spiritualLevel": "Se bautizó", "attendance": "75%", "lastVisit": "11-Jul-2025" },
+        { "id": 5, "name": "Adriana Mora", "spiritualLevel": "Conoció a Dios", "attendance": "85%", "lastVisit": "10-Jul-2025" },
+        { "id": 6, "name": "Ricardo Soto", "spiritualLevel": "Recién llegado", "attendance": "60%", "lastVisit": "30-Jun-2025" },
+        { "id": 7, "name": "Gabriela Ríos", "spiritualLevel": "Se bautizó", "attendance": "70%", "lastVisit": "28-Jun-2025" },
+        { "id": 8, "name": "Javier Castro", "spiritualLevel": "Conoció a Dios", "attendance": "65%", "lastVisit": "29-Jun-2025" },
+        { "id": 9, "name": "Carolina Méndez", "spiritualLevel": "Recién llegado", "attendance": "55%", "lastVisit": "27-Jun-2025" },
+        { "id": 10, "name": "Mauricio Vargas", "spiritualLevel": "Se bautizó", "attendance": "80%", "lastVisit": "15-Jul-2025" },
+        { "id": 11, "name": "Daniela Mora", "spiritualLevel": "Conoció a Dios", "attendance": "75%", "lastVisit": "14-Jul-2025" },
+        { "id": 12, "name": "Roberto Núñez", "spiritualLevel": "Recién llegado", "attendance": "50%", "lastVisit": "25-Jun-2025" },
+        { "id": 13, "name": "Patricia Díaz", "spiritualLevel": "Se bautizó", "attendance": "85%", "lastVisit": "13-Jul-2025" },
+        { "id": 14, "name": "Andrés Rojas", "spiritualLevel": "Conoció a Dios", "attendance": "70%", "lastVisit": "12-Jul-2025" },
+        { "id": 15, "name": "Mariana Castro", "spiritualLevel": "Recién llegado", "attendance": "60%", "lastVisit": "26-Jun-2025" }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Axel Gaxiola",
+      "groupName": "Grupo Paz",
+      "church": "Brisas",
+      "members": 10,
+      "attendance": 90,
+      "lastMeeting": "2025-07-12",
+      "membersList": [
+        { "id": 1, "name": "Eva Morales", "spiritualLevel": "Se bautizó", "attendance": "95%", "lastVisit": "12-Jul-2025" },
+        { "id": 2, "name": "Cristian Reyes", "spiritualLevel": "Conoció a Dios", "attendance": "90%", "lastVisit": "11-Jul-2025" },
+        { "id": 3, "name": "Daniela Torres", "spiritualLevel": "Recién llegado", "attendance": "85%", "lastVisit": "10-Jul-2025" },
+        { "id": 4, "name": "Felipe Castro", "spiritualLevel": "Se bautizó", "attendance": "92%", "lastVisit": "09-Jul-2025" },
+        { "id": 5, "name": "Laura Méndez", "spiritualLevel": "Conoció a Dios", "attendance": "88%", "lastVisit": "08-Jul-2025" },
+        { "id": 6, "name": "Gabriel Rojas", "spiritualLevel": "Recién llegado", "attendance": "95%", "lastVisit": "12-Jul-2025" },
+        { "id": 7, "name": "María Vargas", "spiritualLevel": "Se bautizó", "attendance": "90%", "lastVisit": "11-Jul-2025" },
+        { "id": 8, "name": "Carlos Núñez", "spiritualLevel": "Conoció a Dios", "attendance": "85%", "lastVisit": "10-Jul-2025" },
+        { "id": 9, "name": "Sofía Castro", "spiritualLevel": "Recién llegado", "attendance": "92%", "lastVisit": "09-Jul-2025" },
+        { "id": 10, "name": "Diego Ramírez", "spiritualLevel": "Se bautizó", "attendance": "88%", "lastVisit": "08-Jul-2025" }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Diego Willy",
+      "groupName": "Grupo Gozo",
+      "church": "Colima",
+      "members": 7,
+      "attendance": 80,
+      "lastMeeting": "2025-07-11",
+      "membersList": [
+        { "id": 1, "name": "Isabel Castillo", "spiritualLevel": "Se bautizó", "attendance": "85%", "lastVisit": "11-Jul-2025" },
+        { "id": 2, "name": "Gabriel Ramírez", "spiritualLevel": "Conoció a Dios", "attendance": "90%", "lastVisit": "10-Jul-2025" },
+        { "id": 3, "name": "Natalia Gutiérrez", "spiritualLevel": "Recién llegado", "attendance": "75%", "lastVisit": "09-Jul-2025" },
+        { "id": 4, "name": "Jorge Herrera", "spiritualLevel": "Se bautizó", "attendance": "80%", "lastVisit": "08-Jul-2025" },
+        { "id": 5, "name": "Ana Castro", "spiritualLevel": "Conoció a Dios", "attendance": "85%", "lastVisit": "07-Jul-2025" },
+        { "id": 6, "name": "Luis Vargas", "spiritualLevel": "Recién llegado", "attendance": "70%", "lastVisit": "30-Jun-2025" },
+        { "id": 7, "name": "María Rojas", "spiritualLevel": "Se bautizó", "attendance": "75%", "lastVisit": "29-Jun-2025" }
+      ]
+    }
+  ],
+  "churches": [
+    "Todas",
+    "Patria",
+    "Norte",
+    "Tepeji",
+    "Brisas",
+    "Colima"
+  ]
+}
