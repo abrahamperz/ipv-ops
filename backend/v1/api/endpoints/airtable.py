@@ -120,13 +120,13 @@ async def get_ipv_table_data(
 ):
     """
     Obtiene datos de la tabla 'ipv' de Airtable filtrados por mes y año.
-    
+
     Args:
         year: Año de los registros a obtener
         month: Mes de los registros a obtener (1-12)
         max_records: Número máximo de registros a devolver (máx 100)
         view: Nombre de la vista a utilizar (opcional)
-        
+
     Returns:
         Lista de registros filtrados por el mes y año especificados
     """
@@ -135,36 +135,84 @@ async def get_ipv_table_data(
             status_code=500,
             detail="Airtable configuration is missing. Please check environment variables AIRTABLE_BASE_ID and AIRTABLE_PAT."
         )
-    
+
     # Validar el mes
     if month < 1 or month > 12:
         raise HTTPException(
             status_code=400,
             detail="El mes debe ser un valor entre 1 y 12"
         )
-    
+
     # Crear la fórmula de filtro para el mes y año especificados
     next_month = month + 1 if month < 12 else 1
     next_year = year + 1 if month == 12 else year
-    
+
     # Formato de fecha: YYYY-MM-DD
     start_date = f"{year}-{month:02d}-01"
     end_date = f"{next_year}-{next_month:02d}-01"
-    
+
     # Crear la fórmula de filtro para Airtable
     filter_formula = f"AND(IS_AFTER({{Date}}, '{start_date}'), IS_BEFORE({{Date}}, '{end_date}'))"
-    
+
     # Obtener los datos de Airtable
     data, error = airtable_service.get_table_data(
         max_records=max_records,
         view=view,
         filter_by_formula=filter_formula
     )
-    
+
     if error:
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener datos de Airtable: {error}"
         )
-    
+
     return data.get('records', [])
+
+@router.get("/all", response_model=List[Dict[str, Any]])
+async def get_all_ipv_table_data(
+    max_records: int = Query(1000, le=1000, description="Número máximo de registros (máx 1000)"),
+    view: Optional[str] = Query(None, description="Nombre de la vista a utilizar")
+):
+    """
+    Obtiene todos los datos de la tabla 'ipv' de Airtable sin filtros.
+
+    Args:
+        max_records: Número máximo de registros a devolver (máx 1000)
+        view: Nombre de la vista a utilizar (opcional)
+
+    Returns:
+        Lista de todos los registros disponibles
+    """
+    if not airtable_service:
+        raise HTTPException(
+            status_code=500,
+            detail="Airtable configuration is missing. Please check environment variables AIRTABLE_BASE_ID and AIRTABLE_PAT."
+        )
+
+    # Obtener todos los datos de Airtable sin filtros
+    all_records = []
+    offset = None
+
+    while len(all_records) < max_records:
+        data, error = airtable_service.get_table_data(
+            max_records=min(100, max_records - len(all_records)),
+            view=view,
+            offset=offset
+        )
+
+        if error:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error al obtener datos de Airtable: {error}"
+            )
+
+        records = data.get('records', [])
+        all_records.extend(records)
+
+        # Verificar si hay más páginas
+        offset = data.get('offset')
+        if not offset or len(records) == 0:
+            break
+
+    return all_records

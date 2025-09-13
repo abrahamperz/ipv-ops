@@ -3,6 +3,7 @@ Punto de entrada principal para la aplicación FastAPI.
 """
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Importar rutas de la API
 from v1.api.routes import router as api_router
@@ -12,6 +13,15 @@ app = FastAPI(
     title="Google Sheets API",
     description="API para obtener datos de Google Sheets",
     version="1.0.0"
+)
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Origen del frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Incluir rutas de la API
