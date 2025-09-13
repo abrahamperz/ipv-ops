@@ -111,24 +111,24 @@ except ValueError as e:
     logger.warning(str(e))
     airtable_service = None
 
-@router.get("/", response_model=AirtableResponse)
+@router.get("/", response_model=List[Dict[str, Any]])
 async def get_ipv_table_data(
+    year: int = Query(..., description="Año (ej: 2025)"),
+    month: int = Query(..., description="Mes (1-12)"),
     max_records: int = Query(100, le=100, description="Número máximo de registros por página (máx 100)"),
-    view: Optional[str] = Query(None, description="Nombre de la vista a utilizar"),
-    filter_by_formula: Optional[str] = Query(None, description="Fórmula de filtrado de Airtable"),
-    offset: Optional[str] = Query(None, description="Token de paginación")
+    view: Optional[str] = Query(None, description="Nombre de la vista a utilizar")
 ):
     """
-    Obtiene datos de la tabla 'ipv' de Airtable con soporte para paginación.
+    Obtiene datos de la tabla 'ipv' de Airtable filtrados por mes y año.
     
     Args:
+        year: Año de los registros a obtener
+        month: Mes de los registros a obtener (1-12)
         max_records: Número máximo de registros a devolver (máx 100)
         view: Nombre de la vista a utilizar (opcional)
-        filter_by_formula: Fórmula de filtrado de Airtable (opcional)
-        offset: Token de paginación (opcional)
         
     Returns:
-        Datos de la tabla 'ipv' con soporte para paginación
+        Lista de registros filtrados por el mes y año especificados
     """
     if not airtable_service:
         raise HTTPException(
@@ -136,11 +136,29 @@ async def get_ipv_table_data(
             detail="Airtable configuration is missing. Please check environment variables AIRTABLE_BASE_ID and AIRTABLE_PAT."
         )
     
+    # Validar el mes
+    if month < 1 or month > 12:
+        raise HTTPException(
+            status_code=400,
+            detail="El mes debe ser un valor entre 1 y 12"
+        )
+    
+    # Crear la fórmula de filtro para el mes y año especificados
+    next_month = month + 1 if month < 12 else 1
+    next_year = year + 1 if month == 12 else year
+    
+    # Formato de fecha: YYYY-MM-DD
+    start_date = f"{year}-{month:02d}-01"
+    end_date = f"{next_year}-{next_month:02d}-01"
+    
+    # Crear la fórmula de filtro para Airtable
+    filter_formula = f"AND(IS_AFTER({{Date}}, '{start_date}'), IS_BEFORE({{Date}}, '{end_date}'))"
+    
+    # Obtener los datos de Airtable
     data, error = airtable_service.get_table_data(
         max_records=max_records,
         view=view,
-        filter_by_formula=filter_by_formula,
-        offset=offset
+        filter_by_formula=filter_formula
     )
     
     if error:
@@ -148,5 +166,5 @@ async def get_ipv_table_data(
             status_code=500,
             detail=f"Error al obtener datos de Airtable: {error}"
         )
-        
-    return data
+    
+    return data.get('records', [])
