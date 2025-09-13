@@ -7,6 +7,14 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+      - ./backend/credentials:/app/credentials
+      - google_credentials:/app/token.json
+    environment:
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+    networks:
+      - ipv-network
 
   frontend:
     build: ./frontend
@@ -15,3 +23,14 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - ipv-network
+
+networks:
+  ipv-network:
+    driver: bridge
+
+volumes:
+  google_credentials:
