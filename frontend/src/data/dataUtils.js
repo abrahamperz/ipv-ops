@@ -78,16 +78,8 @@ export const transformAirtableData = (airtableRecords) => {
         weekData[`${church} Predicador`] = churchData.predicador;
         // Mantener Adultos como suma para compatibilidad
         weekData[`${church} Adultos`] = churchData.hombres + churchData.mujeres;
-      } else {
-        // Si no hay datos para esta iglesia en esta fecha, poner 0
-        weekData[`${church} Hombres`] = 0;
-        weekData[`${church} Mujeres`] = 0;
-        weekData[`${church} Niños`] = 0;
-        weekData[`${church} Recien nacidos`] = 0;
-        weekData[`${church} Asistencia`] = 0;
-        weekData[`${church} Adultos`] = 0;
-        weekData[`${church} Predicador`] = 'Sin datos';
       }
+      // Si no hay datos para esta iglesia, dejar undefined (no poner 0)
     });
 
     attendanceData.push(weekData);

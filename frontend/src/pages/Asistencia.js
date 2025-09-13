@@ -301,9 +301,28 @@ const Asistencia = () => {
           },
           label: function(context) {
             const weekData = monthlyData[context.dataIndex];
-            if (!weekData) return [];
+            if (!weekData) return ['No información'];
 
-            let preacher;
+            // Check if there's any data for the selected church
+            let hasData = false;
+            if (selectedChurch === 'Todas') {
+              hasData = churches.some(church =>
+                weekData[`${church} Hombres`] !== undefined ||
+                weekData[`${church} Mujeres`] !== undefined ||
+                weekData[`${church} Niños`] !== undefined ||
+                weekData[`${church} Recien nacidos`] !== undefined
+              );
+            } else {
+              hasData = weekData[`${selectedChurch} Hombres`] !== undefined ||
+                       weekData[`${selectedChurch} Mujeres`] !== undefined ||
+                       weekData[`${selectedChurch} Niños`] !== undefined ||
+                       weekData[`${selectedChurch} Recien nacidos`] !== undefined;
+            }
+
+            if (!hasData) {
+              return ['No información'];
+            }
+
             const labels = [`Predicador: ${selectedChurch === 'Todas' ? 'Varios predicadores' : (weekData[`${selectedChurch} Predicador`] || 'Sin predicador')}`];
 
             if (view === 'summary') {
@@ -398,13 +417,28 @@ const Asistencia = () => {
     chartDataConfig.datasets.push({
       label: 'Adultos',
       data: monthlyData.map(week => {
+        let hasData = false;
+        let total = 0;
+
         if (selectedChurch === 'Todas') {
-          return churches.reduce((sum, church) => {
-            return sum + ((week[`${church} Hombres`] || 0) + (week[`${church} Mujeres`] || 0));
-          }, 0);
+          churches.forEach(church => {
+            const hombres = week[`${church} Hombres`];
+            const mujeres = week[`${church} Mujeres`];
+            if (hombres !== undefined || mujeres !== undefined) {
+              hasData = true;
+              total += (hombres || 0) + (mujeres || 0);
+            }
+          });
         } else {
-          return (week[`${selectedChurch} Hombres`] || 0) + (week[`${selectedChurch} Mujeres`] || 0);
+          const hombres = week[`${selectedChurch} Hombres`];
+          const mujeres = week[`${selectedChurch} Mujeres`];
+          if (hombres !== undefined || mujeres !== undefined) {
+            hasData = true;
+            total = (hombres || 0) + (mujeres || 0);
+          }
         }
+
+        return hasData ? total : null;
       }),
       borderColor: colors.gruposEnCasa.blue,
       backgroundColor: colors.gruposEnCasa.blueLight,
@@ -418,18 +452,34 @@ const Asistencia = () => {
       pointHitRadius: 10,
       pointBorderWidth: 2,
       pointRadius: 4,
+      spanGaps: false,
     });
 
     chartDataConfig.datasets.push({
       label: 'Niños',
       data: monthlyData.map(week => {
+        let hasData = false;
+        let total = 0;
+
         if (selectedChurch === 'Todas') {
-          return churches.reduce((sum, church) => {
-            return sum + ((week[`${church} Niños`] || 0) + (week[`${church} Recien nacidos`] || 0));
-          }, 0);
+          churches.forEach(church => {
+            const ninos = week[`${church} Niños`];
+            const recienNacidos = week[`${church} Recien nacidos`];
+            if (ninos !== undefined || recienNacidos !== undefined) {
+              hasData = true;
+              total += (ninos || 0) + (recienNacidos || 0);
+            }
+          });
         } else {
-          return (week[`${selectedChurch} Niños`] || 0) + (week[`${selectedChurch} Recien nacidos`] || 0);
+          const ninos = week[`${selectedChurch} Niños`];
+          const recienNacidos = week[`${selectedChurch} Recien nacidos`];
+          if (ninos !== undefined || recienNacidos !== undefined) {
+            hasData = true;
+            total = (ninos || 0) + (recienNacidos || 0);
+          }
         }
+
+        return hasData ? total : null;
       }),
       borderColor: colors.gruposEnCasa.green,
       backgroundColor: colors.gruposEnCasa.greenLight,
@@ -443,17 +493,26 @@ const Asistencia = () => {
       pointHitRadius: 10,
       pointBorderWidth: 2,
       pointRadius: 4,
+      spanGaps: false,
     });
   } else if (view === 'detailed') {
     chartDataConfig.datasets.push({
       label: 'Hombres',
       data: monthlyData.map(week => {
         if (selectedChurch === 'Todas') {
-          return churches.reduce((sum, church) => {
-            return sum + (week[`${church} Hombres`] || 0);
-          }, 0);
+          let hasData = false;
+          let total = 0;
+          churches.forEach(church => {
+            const value = week[`${church} Hombres`];
+            if (value !== undefined) {
+              hasData = true;
+              total += value || 0;
+            }
+          });
+          return hasData ? total : null;
         } else {
-          return week[`${selectedChurch} Hombres`] || 0;
+          const value = week[`${selectedChurch} Hombres`];
+          return value !== undefined ? (value || 0) : null;
         }
       }),
       borderColor: colors.gruposEnCasa.blue,
@@ -468,17 +527,26 @@ const Asistencia = () => {
       pointHitRadius: 10,
       pointBorderWidth: 2,
       pointRadius: 4,
+      spanGaps: false,
     });
 
     chartDataConfig.datasets.push({
       label: 'Mujeres',
       data: monthlyData.map(week => {
         if (selectedChurch === 'Todas') {
-          return churches.reduce((sum, church) => {
-            return sum + (week[`${church} Mujeres`] || 0);
-          }, 0);
+          let hasData = false;
+          let total = 0;
+          churches.forEach(church => {
+            const value = week[`${church} Mujeres`];
+            if (value !== undefined) {
+              hasData = true;
+              total += value || 0;
+            }
+          });
+          return hasData ? total : null;
         } else {
-          return week[`${selectedChurch} Mujeres`] || 0;
+          const value = week[`${selectedChurch} Mujeres`];
+          return value !== undefined ? (value || 0) : null;
         }
       }),
       borderColor: colors.gruposEnCasa.pink,
@@ -493,17 +561,26 @@ const Asistencia = () => {
       pointHitRadius: 10,
       pointBorderWidth: 2,
       pointRadius: 4,
+      spanGaps: false,
     });
 
     chartDataConfig.datasets.push({
       label: 'Niños',
       data: monthlyData.map(week => {
         if (selectedChurch === 'Todas') {
-          return churches.reduce((sum, church) => {
-            return sum + (week[`${church} Niños`] || 0);
-          }, 0);
+          let hasData = false;
+          let total = 0;
+          churches.forEach(church => {
+            const value = week[`${church} Niños`];
+            if (value !== undefined) {
+              hasData = true;
+              total += value || 0;
+            }
+          });
+          return hasData ? total : null;
         } else {
-          return week[`${selectedChurch} Niños`] || 0;
+          const value = week[`${selectedChurch} Niños`];
+          return value !== undefined ? (value || 0) : null;
         }
       }),
       borderColor: colors.gruposEnCasa.green,
@@ -518,17 +595,26 @@ const Asistencia = () => {
       pointHitRadius: 10,
       pointBorderWidth: 2,
       pointRadius: 4,
+      spanGaps: false,
     });
 
     chartDataConfig.datasets.push({
       label: 'Recien nacidos',
       data: monthlyData.map(week => {
         if (selectedChurch === 'Todas') {
-          return churches.reduce((sum, church) => {
-            return sum + (week[`${church} Recien nacidos`] || 0);
-          }, 0);
+          let hasData = false;
+          let total = 0;
+          churches.forEach(church => {
+            const value = week[`${church} Recien nacidos`];
+            if (value !== undefined) {
+              hasData = true;
+              total += value || 0;
+            }
+          });
+          return hasData ? total : null;
         } else {
-          return week[`${selectedChurch} Recien nacidos`] || 0;
+          const value = week[`${selectedChurch} Recien nacidos`];
+          return value !== undefined ? (value || 0) : null;
         }
       }),
       borderColor: colors.gruposEnCasa.yellow,
@@ -543,6 +629,7 @@ const Asistencia = () => {
       pointHitRadius: 10,
       pointBorderWidth: 2,
       pointRadius: 4,
+      spanGaps: false,
     });
   }
 
@@ -667,31 +754,30 @@ const Asistencia = () => {
                 </Typography>
                 <People sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }} color="primary" />
               </Box>
-              <Box>
+              <Box display="flex" alignItems="center" gap={1}>
                 <Typography variant="h5" component="div" sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }}>
                   {metrics.total}
                 </Typography>
-                <Box display="flex" alignItems="center" mt={0.5}>
-                  {metrics.change !== 0 && (
-                    <Box
-                      component="span"
-                      sx={{
-                        color: metrics.isIncrease ? 'success.main' : 'error.main',
-                        display: 'flex',
-                        alignItems: 'center',
-                        mr: 0.5,
-                      }}
-                    >
-                      {metrics.isIncrease ? <TrendingUp fontSize="small" /> : <TrendingDown fontSize="small" />}
-                      <Typography variant="caption" sx={{ ml: 0.25, fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
-                        {Math.abs(metrics.change)}%
-                      </Typography>
-                    </Box>
-                  )}
+                {metrics.change !== 0 && (
+                  <Box
+                    component="span"
+                    sx={{
+                      color: metrics.isIncrease ? 'success.main' : 'error.main',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {metrics.isIncrease ? <TrendingUp fontSize="small" /> : <TrendingDown fontSize="small" />}
+                    <Typography variant="caption" sx={{ ml: 0.25, fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
+                      {Math.abs(metrics.change)}%
+                    </Typography>
+                  </Box>
+                )}
+                {metrics.change === 0 && (
                   <Typography variant="caption" color="textSecondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
-                    {metrics.change === 0 ? 'Sin cambio' : metrics.isIncrease ? '↑' : '↓'}
+                    Sin cambio
                   </Typography>
-                </Box>
+                )}
               </Box>
             </CardContent>
           </Card>
@@ -761,46 +847,41 @@ const Asistencia = () => {
           </Card>
         </Grid>
 
-        {/* Chart */}
-        <Grid item xs={12}>
-          <Card elevation={2}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-                <Box>
-                  <Typography variant="h6" component="div">
-                    Tendencias de asistencia - {selectedMonth ? selectedMonth.charAt(0).toUpperCase() + selectedMonth.slice(1) : ''}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Datos por domingo
-                  </Typography>
+        {/* Chart - Only show if there's any data at all */}
+        {Object.keys(dataByMonth).length > 0 && Object.values(dataByMonth).some(monthData => monthData.length > 0) && (
+          <Grid item xs={12}>
+            <Card elevation={2}>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
+                  <Box>
+                    <Typography variant="h6" component="div">
+                      Tendencias de asistencia - {selectedMonth ? selectedMonth.charAt(0).toUpperCase() + selectedMonth.slice(1) : ''}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Datos por domingo
+                    </Typography>
+                  </Box>
+                  <ToggleButtonGroup
+                    color="primary"
+                    value={view}
+                    exclusive
+                    onChange={handleViewChange}
+                    size="small"
+                  >
+                    <ToggleButton value="summary">Resumen</ToggleButton>
+                    <ToggleButton value="detailed">Detallado</ToggleButton>
+                  </ToggleButtonGroup>
                 </Box>
-                <ToggleButtonGroup
-                  color="primary"
-                  value={view}
-                  exclusive
-                  onChange={handleViewChange}
-                  size="small"
-                >
-                  <ToggleButton value="summary">Resumen</ToggleButton>
-                  <ToggleButton value="detailed">Detallado</ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-              
-              <Box sx={{ height: 400 }}>
-                {monthlyData.length > 0 ? (
+                <Box sx={{ height: 400 }}>
                   <Line 
                     data={chartDataConfig} 
                     options={chartOptions} 
                   />
-                ) : (
-                  <Box display="flex" justifyContent="center" alignItems="center" height="100%" color="text.secondary">
-                    No hay datos disponibles para este mes
-                  </Box>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );

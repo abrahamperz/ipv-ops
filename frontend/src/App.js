@@ -9,7 +9,7 @@ import {
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import NewSidebar from './components/NewSidebar';
 import Asistencia from './pages/Asistencia';
-import GruposEnCasa from './pages/GruposEnCasa';
+// import GruposEnCasa from './pages/GruposEnCasa';
 
 const theme = createTheme({
   palette: {
@@ -111,7 +111,7 @@ function AppContent() {
       >
         <Routes>
           <Route path="/asistencia" element={<Asistencia />} />
-          <Route path="/grupos" element={<GruposEnCasa />} />
+          {/* <Route path="/grupos" element={<GruposEnCasa />} /> */}
           <Route path="/" element={<Asistencia />} />
         </Routes>
       </Box>

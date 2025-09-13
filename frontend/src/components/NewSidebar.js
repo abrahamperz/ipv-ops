@@ -21,11 +21,7 @@ const menuItems = [
     icon: <PeopleIcon />,
     value: 'asistencia',
   },
-  { 
-    text: 'Grupos en Casa', 
-    icon: <HomeWorkIcon />,
-    value: 'grupos',
-  },
+  // Removed Grupos en Casa menu item
 ];
 
 const NewSidebar = ({ activeTab, onTabChange }) => {
