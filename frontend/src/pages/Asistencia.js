@@ -32,7 +32,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { TrendingUp, People, TrendingDown, CalendarMonth } from '@mui/icons-material';
-import { format, parseISO, isSameDay } from 'date-fns';
+import { format, parseISO, isSameDay, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { fetchAttendanceData, groupDataByMonth } from '../data/dataUtils';
 import colors from '../theme/colors';
@@ -119,7 +119,11 @@ const Asistencia = () => {
   }, [selectedMonth, dataByMonth]);
 
   // Get available months for the dropdown
-  const availableMonths = Object.keys(dataByMonth).sort();
+  const availableMonths = Object.keys(dataByMonth).sort((a, b) => {
+    const dateA = parse(a, 'MMMM yyyy', new Date(), { locale: es });
+    const dateB = parse(b, 'MMMM yyyy', new Date(), { locale: es });
+    return dateA - dateB;
+  });
 
   // Filter data for the selected month
   const monthlyData = dataByMonth[selectedMonth] || [];
