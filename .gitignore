@@ -21,7 +21,6 @@ wheels/
 *.egg
 
 # Environment variables
-.env
 
 # Google credentials
 **/credentials.json

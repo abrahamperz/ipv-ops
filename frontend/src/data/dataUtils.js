@@ -1,6 +1,9 @@
 import { format, parseISO, startOfWeek, getWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+// API Base URL from environment (React automatically loads .env files)
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ipv-ops.pro';
+
 /**
  * Transforma datos de Airtable al formato esperado por el dashboard de asistencia
  * @param {Array} airtableRecords - Registros obtenidos de Airtable
@@ -102,9 +105,9 @@ export const fetchAttendanceData = async (year, month, fetchAll = false) => {
   try {
     let url;
     if (fetchAll) {
-      url = `http://localhost:8001/api/airtable/all`;
+      url = `${API_BASE_URL}/api/airtable/all`;
     } else {
-      url = `http://localhost:8001/api/airtable/?year=${year}&month=${month}`;
+      url = `${API_BASE_URL}/api/airtable/?year=${year}&month=${month}`;
     }
 
     const response = await fetch(url);

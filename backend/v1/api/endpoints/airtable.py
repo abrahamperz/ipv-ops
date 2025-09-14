@@ -36,15 +36,16 @@ class AirtableService:
     
     def __init__(self):
         self.base_id = os.getenv("AIRTABLE_BASE_ID")
+        self.table_name = os.getenv("AIRTABLE_TABLE_NAME", "ipv")
         self.pat = os.getenv("AIRTABLE_PAT")
-        
-        if not all([self.base_id, self.pat]):
+
+        if not all([self.base_id, self.table_name, self.pat]):
             raise ValueError(
                 "Missing required Airtable environment variables. "
-                "Please set AIRTABLE_BASE_ID and AIRTABLE_PAT"
+                "Please set AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME, and AIRTABLE_PAT"
             )
-            
-        self.base_url = f"https://api.airtable.com/v0/{self.base_id}/ipv"
+
+        self.base_url = f"https://api.airtable.com/v0/{self.base_id}/{self.table_name}"
         self.headers = {
             "Authorization": f"Bearer {self.pat}",
             "Content-Type": "application/json"

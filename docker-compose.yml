@@ -7,8 +7,8 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - ./backend/credentials:/app/credentials
-      - google_credentials:/app/token.json
+    env_file:
+      - .env
     environment:
       - PYTHONUNBUFFERED=1
     stdin_open: true
@@ -31,6 +31,3 @@ services:
 networks:
   ipv-network:
     driver: bridge
-
-volumes:
-  google_credentials:
