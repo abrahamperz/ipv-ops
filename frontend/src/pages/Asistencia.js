@@ -6,8 +6,6 @@ import {
   Card,
   CardContent,
   Divider,
-  ToggleButton,
-  ToggleButtonGroup,
   FormControl,
   InputLabel,
   Select,
@@ -57,7 +55,6 @@ const Asistencia = () => {
   const theme = useTheme();
   const location = useLocation();
   const [selectedChurch, setSelectedChurch] = useState('Todas');
-  const [view, setView] = useState('detailed');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedWeek, setSelectedWeek] = useState('');
 
@@ -169,11 +166,6 @@ const Asistencia = () => {
     setSelectedChurch(event.target.value);
   };
 
-  const handleViewChange = (event, newView) => {
-    if (newView !== null) {
-      setView(newView);
-    }
-  };
 
   const handleWeekChange = (event) => {
     setSelectedWeek(event.target.value);
@@ -184,9 +176,9 @@ const Asistencia = () => {
     setCurrentMonth(month);
   };
 
-  // Calculate metrics for the selected church and ALL available data
+  // Calculate metrics for the selected church and selected week
   const calculateMetrics = () => {
-    if (!monthlyData || monthlyData.length === 0) {
+    if (!selectedWeekData || Object.keys(selectedWeekData).length === 0) {
       return {
         adultos: 0,
         jovenes: 0,
@@ -203,32 +195,28 @@ const Asistencia = () => {
     let currentAdultos = 0, currentJovenes = 0, currentNinos = 0, currentRecienNacidos = 0, currentNuevos = 0, currentVoluntarios = 0;
 
     if (selectedChurch === 'Todas') {
-      // Sum up all churches' data from ALL weeks
-      monthlyData.forEach(week => {
-        churches.forEach(church => {
-          currentAdultos += (week[`${church} Adultos`] || 0);
-          currentJovenes += (week[`${church} Jovenes`] || 0);
-          currentNinos += (week[`${church} Niños`] || 0);
-          currentRecienNacidos += (week[`${church} Recien nacidos`] || 0);
-          currentNuevos += (week[`${church} Nuevos`] || 0);
-          currentVoluntarios += (week[`${church} Voluntarios`] || 0);
-        });
+      // Sum up all churches' data for the selected week
+      churches.forEach(church => {
+        currentAdultos += (selectedWeekData[`${church} Adultos`] || 0);
+        currentJovenes += (selectedWeekData[`${church} Jovenes`] || 0);
+        currentNinos += (selectedWeekData[`${church} Niños`] || 0);
+        currentRecienNacidos += (selectedWeekData[`${church} Recien nacidos`] || 0);
+        currentNuevos += (selectedWeekData[`${church} Nuevos`] || 0);
+        currentVoluntarios += (selectedWeekData[`${church} Voluntarios`] || 0);
       });
     } else {
-      // Sum up selected church data from ALL weeks
-      monthlyData.forEach(week => {
-        currentAdultos += (week[`${selectedChurch} Adultos`] || 0);
-        currentJovenes += (week[`${selectedChurch} Jovenes`] || 0);
-        currentNinos += (week[`${selectedChurch} Niños`] || 0);
-        currentRecienNacidos += (week[`${selectedChurch} Recien nacidos`] || 0);
-        currentNuevos += (week[`${selectedChurch} Nuevos`] || 0);
-        currentVoluntarios += (week[`${selectedChurch} Voluntarios`] || 0);
-      });
+      // Get selected church data for the selected week
+      currentAdultos += (selectedWeekData[`${selectedChurch} Adultos`] || 0);
+      currentJovenes += (selectedWeekData[`${selectedChurch} Jovenes`] || 0);
+      currentNinos += (selectedWeekData[`${selectedChurch} Niños`] || 0);
+      currentRecienNacidos += (selectedWeekData[`${selectedChurch} Recien nacidos`] || 0);
+      currentNuevos += (selectedWeekData[`${selectedChurch} Nuevos`] || 0);
+      currentVoluntarios += (selectedWeekData[`${selectedChurch} Voluntarios`] || 0);
     }
 
     let totalCurrent = currentAdultos + currentJovenes + currentNinos + currentRecienNacidos + currentNuevos + currentVoluntarios;
 
-    // Para datos acumulados, no calculamos cambios porcentuales
+    // Para datos de semana seleccionada, no calculamos cambios porcentuales
     return {
       adultos: currentAdultos,
       jovenes: currentJovenes,
@@ -287,6 +275,8 @@ const Asistencia = () => {
           size: 14,
           weight: 'normal',
         },
+        mode: 'index',
+        intersect: false,
         callbacks: {
           title: function(tooltipItems) {
             const weekData = monthlyData[tooltipItems[0].dataIndex];
@@ -297,6 +287,11 @@ const Asistencia = () => {
             return tooltipItems[0].label;
           },
           label: function(context) {
+            // Only show full tooltip for the first dataset to avoid duplication
+            if (context.datasetIndex !== 0) {
+              return null;
+            }
+
             const weekData = monthlyData[context.dataIndex];
             if (!weekData) return ['No información'];
 
@@ -326,54 +321,70 @@ const Asistencia = () => {
 
             const labels = [`Predicador: ${selectedChurch === 'Todas' ? 'Varios predicadores' : (weekData[`${selectedChurch} Predicador`] || 'Sin predicador')}`];
 
-            if (view === 'summary') {
-              let adults, children;
-              if (selectedChurch === 'Todas') {
-                adults = churches.reduce((sum, church) => sum + (weekData[`${church} Adultos`] || 0), 0);
-                children = churches.reduce((sum, church) => sum + ((weekData[`${church} Niños`] || 0) + (weekData[`${church} Recien nacidos`] || 0)), 0);
-              } else {
-                adults = weekData[`${selectedChurch} Adultos`] || 0;
-                children = (weekData[`${selectedChurch} Niños`] || 0) + (weekData[`${selectedChurch} Recien nacidos`] || 0);
-              }
-              labels.push(`Adultos: ${adults}`, `Niños: ${children}`);
-            } else if (view === 'detailed') {
-              let adultos, jovenes, ninos, recienNacidos, nuevos, voluntarios;
+            let adultos, jovenes, ninos, recienNacidos, nuevos, voluntarios;
 
-              if (selectedChurch === 'Todas') {
-                adultos = churches.reduce((sum, church) => {
-                  return sum + (weekData[`${church} Adultos`] || 0);
-                }, 0);
+            if (selectedChurch === 'Todas') {
+              adultos = churches.reduce((sum, church) => {
+                return sum + (weekData[`${church} Adultos`] || 0);
+              }, 0);
 
-                jovenes = churches.reduce((sum, church) => {
-                  return sum + (weekData[`${church} Jovenes`] || 0);
-                }, 0);
+              jovenes = churches.reduce((sum, church) => {
+                return sum + (weekData[`${church} Jovenes`] || 0);
+              }, 0);
 
-                ninos = churches.reduce((sum, church) => {
-                  return sum + (weekData[`${church} Niños`] || 0);
-                }, 0);
+              ninos = churches.reduce((sum, church) => {
+                return sum + (weekData[`${church} Niños`] || 0);
+              }, 0);
 
-                recienNacidos = churches.reduce((sum, church) => {
-                  return sum + (weekData[`${church} Recien nacidos`] || 0);
-                }, 0);
+              recienNacidos = churches.reduce((sum, church) => {
+                return sum + (weekData[`${church} Recien nacidos`] || 0);
+              }, 0);
 
-                nuevos = churches.reduce((sum, church) => {
-                  return sum + (weekData[`${church} Nuevos`] || 0);
-                }, 0);
+              nuevos = churches.reduce((sum, church) => {
+                return sum + (weekData[`${church} Nuevos`] || 0);
+              }, 0);
 
-                voluntarios = churches.reduce((sum, church) => {
-                  return sum + (weekData[`${church} Voluntarios`] || 0);
-                }, 0);
-              } else {
-                adultos = weekData[`${selectedChurch} Adultos`] || 0;
-                jovenes = weekData[`${selectedChurch} Jovenes`] || 0;
-                ninos = weekData[`${selectedChurch} Niños`] || 0;
-                recienNacidos = weekData[`${selectedChurch} Recien nacidos`] || 0;
-                nuevos = weekData[`${selectedChurch} Nuevos`] || 0;
-                voluntarios = weekData[`${selectedChurch} Voluntarios`] || 0;
-              }
-
-              labels.push(`Adultos: ${adultos}`, `Jóvenes: ${jovenes}`, `Niños: ${ninos}`, `Recien nacidos: ${recienNacidos}`, `Nuevos: ${nuevos}`, `Voluntarios: ${voluntarios}`);
+              voluntarios = churches.reduce((sum, church) => {
+                return sum + (weekData[`${church} Voluntarios`] || 0);
+              }, 0);
+            } else {
+              adultos = weekData[`${selectedChurch} Adultos`] || 0;
+              jovenes = weekData[`${selectedChurch} Jovenes`] || 0;
+              ninos = weekData[`${selectedChurch} Niños`] || 0;
+              recienNacidos = weekData[`${selectedChurch} Recien nacidos`] || 0;
+              nuevos = weekData[`${selectedChurch} Nuevos`] || 0;
+              voluntarios = weekData[`${selectedChurch} Voluntarios`] || 0;
             }
+
+            labels.push(`Adultos: ${adultos}`, `Jóvenes: ${jovenes}`, `Niños: ${ninos}`, `Recien nacidos: ${recienNacidos}`, `Nuevos: ${nuevos}`, `Voluntarios: ${voluntarios}`);
+
+            // Add monthly totals for the selected month
+            labels.push('');
+            labels.push(`Total del mes (${selectedMonth}):`);
+
+            let monthAdultos = 0, monthJovenes = 0, monthNinos = 0, monthRecienNacidos = 0, monthNuevos = 0, monthVoluntarios = 0;
+
+            monthlyData.forEach(week => {
+              if (selectedChurch === 'Todas') {
+                churches.forEach(church => {
+                  monthAdultos += (week[`${church} Adultos`] || 0);
+                  monthJovenes += (week[`${church} Jovenes`] || 0);
+                  monthNinos += (week[`${church} Niños`] || 0);
+                  monthRecienNacidos += (week[`${church} Recien nacidos`] || 0);
+                  monthNuevos += (week[`${church} Nuevos`] || 0);
+                  monthVoluntarios += (week[`${church} Voluntarios`] || 0);
+                });
+              } else {
+                monthAdultos += (week[`${selectedChurch} Adultos`] || 0);
+                monthJovenes += (week[`${selectedChurch} Jovenes`] || 0);
+                monthNinos += (week[`${selectedChurch} Niños`] || 0);
+                monthRecienNacidos += (week[`${selectedChurch} Recien nacidos`] || 0);
+                monthNuevos += (week[`${selectedChurch} Nuevos`] || 0);
+                monthVoluntarios += (week[`${selectedChurch} Voluntarios`] || 0);
+              }
+            });
+
+            labels.push(`Adultos: ${monthAdultos}`, `Jóvenes: ${monthJovenes}`, `Niños: ${monthNinos}`, `Recien nacidos: ${monthRecienNacidos}`, `Nuevos: ${monthNuevos}`, `Voluntarios: ${monthVoluntarios}`);
 
             return labels;
           },
@@ -424,82 +435,6 @@ const Asistencia = () => {
     datasets: []
   };
 
-  if (view === 'summary') {
-    chartDataConfig.datasets.push({
-      label: 'Adultos',
-      data: monthlyData.map(week => {
-        if (selectedChurch === 'Todas') {
-          let hasData = false;
-          let total = 0;
-          churches.forEach(church => {
-            const adultos = week[`${church} Adultos`];
-            if (adultos !== undefined) {
-              hasData = true;
-              total += adultos || 0;
-            }
-          });
-          return hasData ? total : null;
-        } else {
-          const adultos = week[`${selectedChurch} Adultos`];
-          return adultos !== undefined ? (adultos || 0) : null;
-        }
-      }),
-      borderColor: colors.gruposEnCasa.blue,
-      backgroundColor: colors.gruposEnCasa.blueLight,
-      tension: 0.4,
-      fill: false,
-      pointBackgroundColor: colors.gruposEnCasa.blue,
-      pointBorderColor: '#fff',
-      pointHoverRadius: 5,
-      pointHoverBackgroundColor: colors.gruposEnCasa.blue,
-      pointHoverBorderColor: '#fff',
-      pointHitRadius: 10,
-      pointBorderWidth: 2,
-      pointRadius: 4,
-      spanGaps: false,
-    });
-
-    chartDataConfig.datasets.push({
-      label: 'Niños',
-      data: monthlyData.map(week => {
-        let hasData = false;
-        let total = 0;
-
-        if (selectedChurch === 'Todas') {
-          churches.forEach(church => {
-            const ninos = week[`${church} Niños`];
-            const recienNacidos = week[`${church} Recien nacidos`];
-            if (ninos !== undefined || recienNacidos !== undefined) {
-              hasData = true;
-              total += (ninos || 0) + (recienNacidos || 0);
-            }
-          });
-        } else {
-          const ninos = week[`${selectedChurch} Niños`];
-          const recienNacidos = week[`${selectedChurch} Recien nacidos`];
-          if (ninos !== undefined || recienNacidos !== undefined) {
-            hasData = true;
-            total = (ninos || 0) + (recienNacidos || 0);
-          }
-        }
-
-        return hasData ? total : null;
-      }),
-      borderColor: colors.gruposEnCasa.green,
-      backgroundColor: colors.gruposEnCasa.greenLight,
-      tension: 0.4,
-      fill: false,
-      pointBackgroundColor: colors.gruposEnCasa.green,
-      pointBorderColor: '#fff',
-      pointHoverRadius: 5,
-      pointHoverBackgroundColor: colors.gruposEnCasa.green,
-      pointHoverBorderColor: '#fff',
-      pointHitRadius: 10,
-      pointBorderWidth: 2,
-      pointRadius: 4,
-      spanGaps: false,
-    });
-  } else if (view === 'detailed') {
     chartDataConfig.datasets.push({
       label: 'Adultos',
       data: monthlyData.map(week => {
@@ -703,8 +638,6 @@ const Asistencia = () => {
       pointRadius: 4,
       spanGaps: false,
     });
-
-  }
 
   // Show loading state
   if (loading) {
@@ -1060,16 +993,6 @@ const Asistencia = () => {
                       Datos por semana
                     </Typography>
                   </Box>
-                  <ToggleButtonGroup
-                    color="primary"
-                    value={view}
-                    exclusive
-                    onChange={handleViewChange}
-                    size="small"
-                  >
-                    <ToggleButton value="summary">Resumen</ToggleButton>
-                    <ToggleButton value="detailed">Detallado</ToggleButton>
-                  </ToggleButtonGroup>
                 </Box>
                 <Box sx={{ height: 400 }}>
                   <Line 
