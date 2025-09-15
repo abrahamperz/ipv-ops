@@ -7,26 +7,28 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ipv-ops.pro'
 /**
  * Transforma datos de Airtable al formato esperado por el dashboard de asistencia
  * @param {Array} airtableRecords - Registros obtenidos de Airtable
+ * @param {string} tipoFilter - Filtro por tipo ('Domingo', 'Santa Cena', o null para todos)
  * @returns {Object} Datos transformados con estructura compatible
  */
-export const transformAirtableData = (airtableRecords) => {
+export const transformAirtableData = (airtableRecords, tipoFilter = null) => {
   // Lista de iglesias disponibles
-  const churches = ["Patria", "Norte", "Brisas", "Tepeji", "Colima", "Plantios", "Arca", "Camino de Vida"];
+  const churches = ["IPV Brisas", "IPV Colima", "IPV Norte", "IPV Patria", "IPV Plantios", "IPV Tepeji", "IPV Tepetate", "Misión Playa del Carmen", "Misión Puerto Vallarta", "Misión Tapachula"];
 
   // Agrupar registros por fecha
   const recordsByDate = {};
 
   airtableRecords.forEach(record => {
     const fields = record.fields;
-    let dateStr = fields.Date;
+    let dateStr = fields.Fecha;
     const church = fields.Campus;
+    const tipo = fields.Tipo;
 
     if (!dateStr || !church) return;
 
-    // Handle MM/DD/YYYY format by converting to YYYY-MM-DD
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-      dateStr = dateStr.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$1-$2');
-    }
+    // Filter by tipo if specified
+    if (tipoFilter && tipo !== tipoFilter) return;
+
+    // Las fechas ya vienen en formato YYYY-MM-DD desde la API
 
     const date = parseISO(dateStr);
 
@@ -35,20 +37,38 @@ export const transformAirtableData = (airtableRecords) => {
     }
 
     // Extraer campos individuales
-    const hombres = parseInt(fields.Hombres || 0);
-    const mujeres = parseInt(fields.Mujeres || 0);
+    const adultos = parseInt(fields.Adultos || 0);
+    const jovenes = parseInt(fields.Jovenes || 0);
     const ninos = parseInt(fields.Niños || 0);
     const recienNacidos = parseInt(fields['Recien nacidos'] || 0);
-    const totalAsistencia = parseInt(fields.Asistencia || 0);
+    const nuevos = parseInt(fields.Nuevos || 0);
+    const voluntarios = parseInt(fields.Voluntarios || 0);
 
-    recordsByDate[dateStr][church] = {
-      hombres,
-      mujeres,
-      ninos,
-      recienNacidos,
-      predicador: fields.Predicador || 'Sin predicador',
-      total: totalAsistencia
-    };
+    // Si ya existe un registro para esta fecha e iglesia, sumar los valores
+    if (recordsByDate[dateStr][church]) {
+      recordsByDate[dateStr][church].adultos += adultos;
+      recordsByDate[dateStr][church].jovenes += jovenes;
+      recordsByDate[dateStr][church].ninos += ninos;
+      recordsByDate[dateStr][church].recienNacidos += recienNacidos;
+      recordsByDate[dateStr][church].nuevos += nuevos;
+      recordsByDate[dateStr][church].voluntarios += voluntarios;
+      recordsByDate[dateStr][church].total += (adultos + jovenes + ninos + recienNacidos + nuevos + voluntarios);
+      // Mantener el último predicador
+      recordsByDate[dateStr][church].predicador = fields.Predicador || recordsByDate[dateStr][church].predicador;
+    } else {
+      // Crear nuevo registro
+      const totalAsistencia = adultos + jovenes + ninos + recienNacidos + nuevos + voluntarios;
+      recordsByDate[dateStr][church] = {
+        adultos,
+        jovenes,
+        ninos,
+        recienNacidos,
+        nuevos,
+        voluntarios,
+        predicador: fields.Predicador || 'Sin predicador',
+        total: totalAsistencia
+      };
+    }
   });
 
   // Convertir a formato de dashboard
@@ -73,14 +93,14 @@ export const transformAirtableData = (airtableRecords) => {
     churches.forEach(church => {
       const churchData = recordsByDate[dateStr][church];
       if (churchData) {
-        weekData[`${church} Hombres`] = churchData.hombres;
-        weekData[`${church} Mujeres`] = churchData.mujeres;
+        weekData[`${church} Adultos`] = churchData.adultos;
+        weekData[`${church} Jovenes`] = churchData.jovenes;
         weekData[`${church} Niños`] = churchData.ninos;
         weekData[`${church} Recien nacidos`] = churchData.recienNacidos;
+        weekData[`${church} Nuevos`] = churchData.nuevos;
+        weekData[`${church} Voluntarios`] = churchData.voluntarios;
         weekData[`${church} Asistencia`] = churchData.total;
         weekData[`${church} Predicador`] = churchData.predicador;
-        // Mantener Adultos como suma para compatibilidad
-        weekData[`${church} Adultos`] = churchData.hombres + churchData.mujeres;
       }
       // Si no hay datos para esta iglesia, dejar undefined (no poner 0)
     });
@@ -99,9 +119,10 @@ export const transformAirtableData = (airtableRecords) => {
  * @param {number} year - Año para filtrar (opcional)
  * @param {number} month - Mes para filtrar (opcional, 1-12)
  * @param {boolean} fetchAll - Si es true, obtiene todos los datos disponibles
+ * @param {string} tipoFilter - Filtro por tipo ('Domingo', 'Santa Cena', o null para todos)
  * @returns {Promise<Object>} Datos transformados
  */
-export const fetchAttendanceData = async (year, month, fetchAll = false) => {
+export const fetchAttendanceData = async (year, month, fetchAll = false, tipoFilter = null) => {
   try {
     let url;
     if (fetchAll) {
@@ -117,7 +138,7 @@ export const fetchAttendanceData = async (year, month, fetchAll = false) => {
     }
 
     const data = await response.json();
-    return transformAirtableData(data);
+    return transformAirtableData(data, tipoFilter);
   } catch (error) {
     console.error('Error fetching attendance data:', error);
     throw error;

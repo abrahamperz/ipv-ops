@@ -1,31 +1,51 @@
-import React from 'react';
-import { 
-  Box, 
-  List, 
-  ListItem, 
-  ListItemIcon, 
+import React, { useState } from 'react';
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemIcon,
   ListItemText,
   Divider,
   Paper,
   Typography,
-  useTheme
+  useTheme,
+  Collapse,
+  ListItemButton
 } from '@mui/material';
 import { blue } from '@mui/material/colors';
 import PeopleIcon from '@mui/icons-material/People';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import ChurchIcon from '@mui/icons-material/Church';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import SetMealIcon from '@mui/icons-material/SetMeal';
 import ipvLogo from '../assets/ipv_circle.png';
 
 const menuItems = [
-  { 
-    text: 'Asistencia', 
+  {
+    text: 'Asistencia',
     icon: <PeopleIcon />,
     value: 'asistencia',
+    submenu: [
+      {
+        text: 'Servicios',
+        icon: <ChurchIcon />,
+        value: 'servicios'
+      },
+      {
+        text: 'Santa Cena',
+        icon: <SetMealIcon />,
+        value: 'santa-cena'
+      }
+    ]
   },
   // Removed Grupos en Casa menu item
 ];
 
 const NewSidebar = ({ activeTab, onTabChange }) => {
   const theme = useTheme();
+  const [openSubmenu, setOpenSubmenu] = useState(null);
 
   return (
     <Box
@@ -95,33 +115,78 @@ const NewSidebar = ({ activeTab, onTabChange }) => {
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         <List>
           {menuItems.map((item) => (
-            <ListItem 
-              button 
-              key={item.value}
-              selected={activeTab === item.value}
-              onClick={() => onTabChange(item.value)}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'action.selected',
+            <React.Fragment key={item.value}>
+              <ListItemButton
+                selected={activeTab === item.value}
+                onClick={() => {
+                  if (item.submenu) {
+                    setOpenSubmenu(openSubmenu === item.value ? null : item.value);
+                  } else {
+                    onTabChange(item.value);
+                  }
+                }}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: 'action.selected',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                  },
                   '&:hover': {
                     backgroundColor: 'action.hover',
                   },
-                },
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: activeTab === item.value ? 'primary.main' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
-                primaryTypographyProps={{
-                  fontWeight: activeTab === item.value ? 'bold' : 'normal',
                 }}
-              />
-            </ListItem>
+              >
+                <ListItemIcon sx={{ color: activeTab === item.value ? 'primary.main' : 'inherit' }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontWeight: activeTab === item.value ? 'bold' : 'normal',
+                  }}
+                />
+                {item.submenu && (
+                  openSubmenu === item.value ? <ExpandLess /> : <ExpandMore />
+                )}
+              </ListItemButton>
+
+              {item.submenu && (
+                <Collapse in={openSubmenu === item.value} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {item.submenu.map((subItem) => (
+                      <ListItemButton
+                        key={subItem.value}
+                        selected={activeTab === subItem.value}
+                        onClick={() => onTabChange(subItem.value)}
+                        sx={{
+                          pl: 4,
+                          '&.Mui-selected': {
+                            backgroundColor: 'action.selected',
+                            '&:hover': {
+                              backgroundColor: 'action.hover',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <ListItemIcon sx={{ color: activeTab === subItem.value ? 'primary.main' : 'inherit' }}>
+                          {subItem.icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={subItem.text}
+                          primaryTypographyProps={{
+                            fontWeight: activeTab === subItem.value ? 'bold' : 'normal',
+                          }}
+                        />
+                      </ListItemButton>
+                    ))}
+                  </List>
+                </Collapse>
+              )}
+            </React.Fragment>
           ))}
         </List>
       </Box>

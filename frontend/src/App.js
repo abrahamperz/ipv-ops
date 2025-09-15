@@ -111,6 +111,8 @@ function AppContent() {
       >
         <Routes>
           <Route path="/asistencia" element={<Asistencia />} />
+          <Route path="/servicios" element={<Asistencia />} />
+          <Route path="/santa-cena" element={<Asistencia />} />
           {/* <Route path="/grupos" element={<GruposEnCasa />} /> */}
           <Route path="/" element={<Asistencia />} />
         </Routes>
